@@ -343,7 +343,12 @@ button,a{font:inherit;color:inherit;background:none;border:0;text-decoration:non
   display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);
   gap:clamp(30px,6vw,96px);align-items:center}
 .fnd .ph{position:relative;aspect-ratio:4/5;overflow:hidden;background:#001B40}
-.fnd .ph img{width:100%;height:100%;object-fit:cover;object-position:50% 16%}
+/* height:100% on a static child of an aspect-ratio box does not reliably resolve:
+   the image came out 390px tall in a 450px frame, leaving navy above and below.
+   Positioning it to the frame makes the fill independent of how that height is
+   computed. Same fix as the schools preview panel. */
+.fnd .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:50% 16%}
 .fnd blockquote{margin:0;font-size:clamp(22px,2.9vw,44px);font-weight:300;line-height:1.24;
   letter-spacing:-.028em;padding-top:clamp(18px,2.4vw,30px);max-width:22ch}
 .fnd blockquote b{font-weight:700}
