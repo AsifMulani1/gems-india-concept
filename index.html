@@ -765,7 +765,9 @@ sup.fm{font-size:.48em;font-weight:700;vertical-align:super;color:var(--line);pa
 .hd.stuck:not(.light){background:var(--navy)}
 /* a sticky header still occupies its 88px of flow, so "floating over the hero"
    means pulling the hero up under it, not just going transparent. */
-body.home #app{margin-top:calc(var(--hdh) * -1)}
+/* any page that opens on a dark band pulls up under the sticky header, so the bar
+   floats over it instead of cutting a line across it */
+body.home #app,body.darktop #app{margin-top:calc(var(--hdh) * -1)}
 body.home .hero{height:100vh;min-height:600px}
 /* a white header on a white page needs something to separate it once the content
    starts sliding underneath. nothing changed on scroll before. */
@@ -1113,11 +1115,23 @@ body.home .hero{height:100vh;min-height:600px}
 .globe{background:linear-gradient(170deg,#002B64 0%,#001B40 52%,#0A1226 100%);color:#FFFFFF;
   padding-block:clamp(44px,5.4vw,86px);overflow:hidden}
 .globe .in{max-width:1520px;margin:0 auto;padding-inline:clamp(18px,3vw,40px)}
-.globe .gh{margin:0;font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
-  color:#7FD3F5}
+.globe .gh{display:block;margin:0;font-size:11.5px;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;color:#7FD3F5}
 .globe .gbig{margin:clamp(16px,1.8vw,26px) 0 0;font-size:clamp(27px,3.6vw,56px);font-weight:300;
   letter-spacing:-.042em;line-height:1.12;color:#FFFFFF}
 .globe .gbig b{font-weight:700;font-variant-numeric:tabular-nums}
+.globe .gsub{margin:clamp(12px,1.4vw,20px) 0 0;max-width:52ch;font-size:clamp(15px,1.3vw,19px);
+  font-weight:300;line-height:1.6;color:rgba(255,255,255,.7)}
+/* the band opens the page, so it has to clear the floating header */
+.globe.top{padding-block:calc(var(--hdh) + clamp(26px,3.4vw,54px)) clamp(44px,5.4vw,86px)}
+/* all five of GEMS' figures are on the opening screen: four here, countries in the line */
+.gfacts{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,2.4vw,40px);
+  padding-top:clamp(20px,2.4vw,34px);border-top:1px solid rgba(255,255,255,.22)}
+.gfacts .n{display:block;font-size:clamp(26px,3.2vw,52px);font-weight:800;letter-spacing:-.05em;
+  line-height:1;color:#7FD3F5;font-variant-numeric:tabular-nums}
+.gfacts .l{display:block;padding-top:8px;font-size:13px;font-weight:300;
+  color:rgba(255,255,255,.82)}
+@media(max-width:760px){.gfacts{grid-template-columns:1fr 1fr;gap:clamp(16px,4vw,24px)}}
 .gmap{margin-block:clamp(20px,2.6vw,38px);width:100%;
   height:clamp(400px,70vh,780px);overflow:hidden}
 .gmap .wsvg{display:block;width:100%;height:100%;
@@ -1131,8 +1145,7 @@ body.home .hero{height:100vh;min-height:600px}
   mask-composite:intersect}
 @media(max-width:760px){.gmap{height:clamp(300px,52vh,420px)}}
 .globe .gcap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,3.6vw,64px);
-  margin-top:clamp(10px,1.4vw,22px);padding-top:clamp(22px,2.6vw,36px);
-  border-top:1px solid rgba(255,255,255,.22)}
+  margin-top:clamp(26px,3.2vw,46px)}
 .globe .gcap p{margin:0;font-size:clamp(14.5px,1.2vw,17px);font-weight:300;line-height:1.66;
   color:rgba(255,255,255,.86)}
 .globe .gfoot{margin:clamp(20px,2.2vw,30px) 0 0;font-size:12.5px;font-weight:300;line-height:1.55;
@@ -2772,16 +2785,24 @@ function pAbout(){
     ["Care","Every child, with empathy and respect."],
     ["Always Learning","Curiosity drives us forward."]];
 
-  return head([["Home","#/"],["About us",null]],'<b>65 Years</b><br>of GEMS Schools.',
-    "One of the world's largest and most diverse private education providers.")+
+  /* the page opens on the map. No page head: a two level crumb reading
+     "Home / About us" orients nobody, and the title block said in 340px of centred
+     type what the map says better. The big line carries the h1 instead. */
+  var FACTS=[["200,000+","students"],["176+","nationalities"],
+             ["1,050+","university acceptances"],["65+","years"]];
 
-    '<section class="globe" id="globe"><div class="in">'+
-      '<h2 class="gh">GEMS in the world</h2>'+
-      '<p class="gbig">More than <b><span class="cnt">200,000</span></b> students,<br>'+
-        'across <b>10+</b> countries.</p>'+
+  return '<section class="globe top" id="globe"><div class="in">'+
+      '<span class="gh">GEMS Education</span>'+
+      '<h1 class="gbig">More than <b><span class="cnt">200,000</span></b> students,<br>'+
+        'across <b>10+</b> countries.</h1>'+
+      '<p class="gsub">One of the world\u2019s largest and most diverse private '+
+      'education providers.</p>'+
     '</div>'+
     '<div class="gmap">'+worldSVG()+'</div>'+
     '<div class="in">'+
+      '<div class="gfacts">'+FACTS.map(function(f){
+        return '<div><span class="n">'+f[0]+'</span><span class="l">'+f[1]+'</span></div>';
+      }).join("")+'</div>'+
       '<div class="gcap">'+
         '<p>GEMS Education own, operate and manage schools in the United Kingdom, the '+
         'United Arab Emirates, Qatar, India, Egypt, Saudi Arabia, Georgia, Tanzania, Oman, '+
@@ -3640,8 +3661,11 @@ function render(){
   document.title = (/GEMS/.test(title) || (title+SUF).length>60) ? title : title+SUF;
   el("app").innerHTML=html;
   el("foot").innerHTML=footerHTML();
-  el("hd").classList.toggle("light", seg.length>0);
   document.body.classList.toggle("home", seg.length===0);
+  /* a dark band under a white nav bar reads as a mistake; let the header float
+     over it exactly as it does over the homepage hero */
+  document.body.classList.toggle("darktop", seg[0]==="about");
+  el("hd").classList.toggle("light", seg.length>0 && seg[0]!=="about");
   el("mob").hidden=true; el("burger").setAttribute("aria-expanded","false");
   paintNav();
   if(!seg.length && typeof initHome==="function") initHome();
