@@ -2701,9 +2701,13 @@ function pCity(s){
           '<span class="end">View campus</span></a>';}).join("")+'</div>')+
     blk("alt",lead('<b>Other cities</b><br>across India.')+
       '<div class="rows">'+allCities().filter(function(c){return c!==city;}).map(function(c){
+        /* the count only earns its column where it differs: every city but Kochi has
+           one campus, so a column of "1" down the page said nothing */
+        var n=campusesIn(c).length;
         return '<a class="row" href="#/city/'+slug(c)+'"><span class="nm">'+esc(c)+'</span>'+
           '<span class="mid">'+campusesIn(c).map(function(x){return esc(x[0]);}).join(", ")+'</span>'+
-          '<span class="end">'+campusesIn(c).length+'</span></a>';}).join("")+'</div>');
+          '<span class="end">'+(n>1 ? n+' campuses' : 'View')+'</span></a>';
+      }).join("")+'</div>');
 }
 
 var ICO={
